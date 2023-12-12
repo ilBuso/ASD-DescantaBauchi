@@ -1,6 +1,8 @@
 /**
  * 
- *  Questo file contiene le dichiarazioni delle funzioni, strutture... che sono usate nel file main.cpp
+ *  Questo file contiene le dichiarazioni
+ *  delle funzioni, strutture... che sono
+ *  usate nel file main.cpp
  * 
 **/
 
@@ -12,42 +14,45 @@ using namespace std;
 /*
     gestione degli stream
 */
-struct in_out{
-    fstream in;
-    fstream out;
-};
-
+//funzione per aprire tutti gli stram
 in_out apertura_stream(int argc, char* argv[]){
 
     //controllo file
-    if(argc!=3){
+    if(argc != 3){
         //input corretto
-        cerr<<"Usage: ./a.out <source> <target>"<<endl;
+        cerr << "Usage: ./a.out <source> <target>" << endl;
         //uscita causa errore
         exit(1);
     }
 
+    //messaggio per terminale
+    cout << "apertura streams" << endl;
+
     //creazione streams
-    fstream in, out;
+    in_out io;
     //apertura stream entrata
-    in.open(argv[1], ios::in);
+    io.in.open(argv[1], ios::in);
     //apertura stream uscita
-    out.open(argv[2], ios::out);
+    io.out.open(argv[2], ios::out);
 
     //controllo file
-    if(in.fail() || out.fail()){
+    if(io.in.fail() || io.out.fail()){
         //messagio di errore 
-        cerr<<"Errore dell'apertura degli stream"<<endl; 
+        cerr << "Errore dell'apertura degli stream" << endl; 
         //uscita causa errore    
         exit(2);
     }
 
-    struct in_out io;
-    io -> in = in;
-    io -> out = out;
+    //end
+    return io;
 }
 
+//funzione per chioudere tutti gli stream
 void chiusura_stream(fstream in, fstream out){
+
+    //messaggio per terminale
+    cout << "chiusura streams" << endl;
+
     //chisura stream input
     in.close();
     //chisura stream output
@@ -58,7 +63,11 @@ void chiusura_stream(fstream in, fstream out){
 /*
     gestione di input e output
 */
+//funzione per ottenere e organizzare tutt i dati in input
 void input(fstream in){
+
+    //messaggio per terminale
+    cout << "prendendo dati in input" << endl;
 
     //variabili
     int c;  //numero città
@@ -72,5 +81,40 @@ void input(fstream in){
 
     int o; //città occupate
 
-    int array_citta[c] = {};  //----- da fare meglio una volta capito come funziona
+    nodo citys_array[1000];  //----- da fare meglio
+
+
+    //aggiungi archi
+    for(int i = 0; i < s; i++){
+
+        //prendi dall'input informazioni sull'arco
+        in >> a;
+        in >> b;
+        in >> w;
+
+        //code
+    }
+
+    //setta le città come occupate
+    for(int i; in >> i;){
+        //code
+    }
+}
+
+//funzione per fornire l'uotput
+void output(fstream out, int k, int r, int a[]){
+
+    //messaggio per terminale
+    cout << "fornendo i dati in output" << endl;
+
+    //stampa valore di K
+    out << k << endl;
+
+    //stampa del valore di r
+    out << r << endl;
+
+    //stampa dei nodi attraversati
+    for(int i = 0; i < sizeof(a); i++){
+        out << a[i] << " ";  
+    }
 }
