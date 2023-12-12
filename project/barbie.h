@@ -4,9 +4,19 @@
     #include <iostream>
     #include <fstream>
 
-    struct node {
-        int id;
+    struct nodo{
         bool occupied;
+    };
+
+    struct arco{
+        int start;
+        int end;
+        int wheight;
+    };
+
+    struct in_out{
+        fstream in;
+        fstream out;
     };
 
 #endif
