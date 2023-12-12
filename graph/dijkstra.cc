@@ -1,61 +1,67 @@
 #include <iostream>
+#include <fstream>
 #include <queue>
 #include "listgraph.h"
 using namespace std;
 
 #define INFTY -1
 
-int * bfs(listgraph * g, int s, int * &p);
+ifstream in("input.txt");
+ofstream out("output.txt");
+
+void bfs(listgraph * g, int s, int * &distances, int * &parents);
+void printShortestPath(int * parents, int j, int R);
 
 int main() {
 
-    int n = 4, m = 4;
-    int * par;
-    listgraph mappa = listgraph(n, m);
+    int C, S, a, b, w, M;
 
+    in >> C >> S;
 
-    /*
-    mappa.linkWeightedSegment(0, 1, 5);
-    mappa.linkWeightedSegment(0, 2, 1);
-    mappa.linkWeightedSegment(1, 2, 6);
-    mappa.linkWeightedSegment(2, 3, 1);
-    mappa.linkWeightedSegment(1, 3, 3);
-    mappa.linkWeightedSegment(1, 5, 6);
-    mappa.linkWeightedSegment(3, 4, 1);
-    mappa.linkWeightedSegment(4, 5, 1);
-    */
+    listgraph map = listgraph(C, S);
 
-    mappa.linkWeightedSegment(0, 1, 1000);
-    mappa.linkWeightedSegment(0, 2, 1000);
-    mappa.linkWeightedSegment(0, 3, 1);
-    mappa.linkWeightedSegment(3, 1, 1);
-
-    int * distanze = bfs(&mappa, 0, par);
-    cout << "distanze minime da 0: ";
-    for (int i = 0; i < n; i++) {
-        cout << distanze[i] << " ";
+    for (int i = 0; i < S; i++) {
+        in >> a >> b >> w;
+        map.linkWeightedSegment(a, b, w);
     }
-    cout << endl;
 
-    cout << "provenienza: ";
-    for (int i = 0; i < n; i++) {
-        cout << par[i] << " ";
+    in >> M;
+    bool * captured = new bool[C];
+    for (int i = 0; i < C; i++) {
+        captured[i] = false;
     }
-    cout << endl;
 
-    cout << "percorso piu' corto per arrivare da 0 a " << n - 1 << ": ";
-    for (int j = n - 1; j != 0; j = par[j]) {
-        cout << j << " ";
+    for (int i = 0; i < M; i++) {
+        in >> w;
+        captured[w] = true;
     }
-    cout << " 0" << endl;
 
-    delete [] distanze;
-    delete [] par;
+
+
+    int * p;
+    int * d;
+    bfs(&map, 0, d, p);
+
+    printShortestPath(p, C - 1, 1);
+
+    delete [] d;
+    delete [] p;
+    delete [] captured;
 
     return 0;
 }
 
-int * bfs(listgraph * g, int s, int * &p)
+void printShortestPath(int * parents, int j, int R)
+{
+    if (j == 0) {
+        out << R << endl << j << " ";
+    } else {
+        printShortestPath(parents, parents[j], R + 1);
+        out << j << " ";
+    }
+}
+
+void bfs(listgraph * g, int s, int * &distances, int * &parents)
 {
     int n = g->size();
     int x;
@@ -65,15 +71,15 @@ int * bfs(listgraph * g, int s, int * &p)
     queue<int> q;
 
     // distance and parent vectors
-    int * distance = new int[n];
-    int * parent = new int[n];
+    distances = new int[n];
+    parents = new int[n];
 
     for (int i = 0; i < n; i++) {
-        distance[i] = INFTY;
-        parent[i] = INFTY;
+        distances[i] = INFTY;
+        parents[i] = INFTY;
     }
 
-    distance[s] = 0;
+    distances[s] = 0;
     q.push(s);
 
     while (!q.empty()) {
@@ -82,17 +88,14 @@ int * bfs(listgraph * g, int s, int * &p)
 
         // for each node which is adjacent to x...
         for (t = g->adjacentNodes(x)->getHead(); !t->empty(); t = t->next) {
-            if (distance[t->id] == INFTY) {
-                distance[t->id] = distance[x] + t->weight;
-                parent[t->id] = x;
+            if (distances[t->id] == INFTY) {
+                distances[t->id] = distances[x] + t->weight;
+                parents[t->id] = x;
                 q.push(t->id);
-            } else if (distance[t->id] > distance[x] + t->weight) {
-                distance[t->id] = distance[x] + t->weight;
-                parent[t->id] = x;
+            } else if (distances[t->id] > distances[x] + t->weight) {
+                distances[t->id] = distances[x] + t->weight;
+                parents[t->id] = x;
             }
         }
     }
-
-    p = parent;
-    return distance;
 }
