@@ -9,13 +9,13 @@ using namespace std;
 ifstream in("input.txt");
 ofstream out("output.txt");
 
-void bfs(listgraph * g, int s, int * &distances, int * &parents);
+void dijkstra(listgraph * g, int s, int * &distances, int * &parents, bool * captured);
 void printShortestPath(int * parents, int j, int R);
 
 int main() {
 
     int C, S, a, b, w, M;
-
+    
     in >> C >> S;
 
     listgraph map = listgraph(C, S);
@@ -40,7 +40,7 @@ int main() {
 
     int * p;
     int * d;
-    bfs(&map, 0, d, p);
+    dijkstra(&map, 0, d, p, captured);
 
     printShortestPath(p, C - 1, 1);
 
@@ -61,7 +61,43 @@ void printShortestPath(int * parents, int j, int R)
     }
 }
 
-void bfs(listgraph * g, int s, int * &distances, int * &parents)
+
+void computeK(int * no_weight_parents, int * parents, bool * captured, int n, int no_weight_cost, int weight_cost)
+{
+    int weight_edges = 0;
+    int no_weight_edges = 0;
+
+    bool no_weight_captured = false;
+    bool weight_captured = false;
+
+    //cout << "Peso del percorso con meno archi: " << no_weight_cost[n - 1] << endl;
+    for (int i = n - 1; i != 0; i = no_weight_parents[i]) { //scorri a ritroso il percorso
+        no_weight_edges++;
+        if (captured[i]) {
+            no_weight_captured = true;
+        }
+    }
+
+    for (int i = n - 1; i != 0; i = parents[i]) {
+        weight_edges++;
+        if (captured[i]) {
+            weight_captured = true;
+        }
+    }
+
+
+
+
+    if (weight_captured && no_weight_captured)
+        out << -2 << endl;
+    else if (!weight_captured && no_weight_captured)
+        out << ( (no_weight_cost - weight_cost - 1) / (weight_edges - no_weight_edges) ) << endl;
+    else
+        out << -1 << endl;
+}
+
+
+void dijkstra(listgraph * g, int s, int * &distances, int * &parents, bool * captured)
 {
     int n = g->size();
     int x;
@@ -74,10 +110,20 @@ void bfs(listgraph * g, int s, int * &distances, int * &parents)
     distances = new int[n];
     parents = new int[n];
 
+    // vettore distanze con meno lati e
+    // peso per arrivare al i-esimo nodo
+    // utilizzando percorsi di quel tipo
+    int * no_weight_cost = new int[n];
+    int * no_weight_parents = new int[n];
+
     for (int i = 0; i < n; i++) {
         distances[i] = INFTY;
         parents[i] = INFTY;
+
+        no_weight_parents[i] = INFTY;
     }
+
+    no_weight_cost[s] = 0;
 
     distances[s] = 0;
     q.push(s);
@@ -89,6 +135,12 @@ void bfs(listgraph * g, int s, int * &distances, int * &parents)
         // for each node which is adjacent to x...
         for (t = g->adjacentNodes(x)->getHead(); !t->empty(); t = t->next) {
             if (distances[t->id] == INFTY) {
+                
+                //segna il costo necessario per usare il percorso con meno archi
+                no_weight_cost[t->id] = no_weight_cost[x] + t->weight;
+                no_weight_parents[t->id] = x; //e segna da dove sei venuto
+                
+
                 distances[t->id] = distances[x] + t->weight;
                 parents[t->id] = x;
                 q.push(t->id);
@@ -98,4 +150,9 @@ void bfs(listgraph * g, int s, int * &distances, int * &parents)
             }
         }
     }
+
+    computeK(no_weight_parents, parents, captured, n, no_weight_cost[n], distances[n]);
+
+    delete [] no_weight_cost;
+    delete [] no_weight_parents;
 }
