@@ -21,6 +21,8 @@ class listgraph {
         int m; // numero di lati
 
     public:
+        bool * captured;
+
         listgraph(int n, int m);
         ~listgraph();
         int size(); // numero di nodi

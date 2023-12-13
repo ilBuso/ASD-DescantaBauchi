@@ -26,27 +26,20 @@ int main() {
     }
 
     in >> M;
-    bool * captured = new bool[C];
-    for (int i = 0; i < C; i++) {
-        captured[i] = false;
-    }
 
     for (int i = 0; i < M; i++) {
         in >> w;
-        captured[w] = true;
+        map.captured[w] = true;
     }
-
-
 
     int * p;
     int * d;
-    dijkstra(&map, 0, d, p, captured);
+    dijkstra(&map, 0, d, p, map.captured);
 
     printShortestPath(p, C - 1, 1);
 
     delete [] d;
     delete [] p;
-    delete [] captured;
 
     return 0;
 }
@@ -133,7 +126,14 @@ void dijkstra(listgraph * g, int s, int * &distances, int * &parents, bool * cap
         x = q.front(); q.pop();
 
         // for each node which is adjacent to x...
+
+
+
         for (t = g->adjacentNodes(x)->getHead(); !t->empty(); t = t->next) {
+
+
+
+
             if (distances[t->id] == INFTY) {
                 
                 //segna il costo necessario per usare il percorso con meno archi
@@ -151,7 +151,7 @@ void dijkstra(listgraph * g, int s, int * &distances, int * &parents, bool * cap
         }
     }
 
-    computeK(no_weight_parents, parents, captured, n, no_weight_cost[n], distances[n]);
+    //computeK(no_weight_parents, parents, captured, n, no_weight_cost[n], distances[n]);
 
     delete [] no_weight_cost;
     delete [] no_weight_parents;

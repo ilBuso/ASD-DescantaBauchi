@@ -75,13 +75,15 @@ void input(fstream in){
     int s;  //numero strade
     in >> s;
 
+    listgraph map = listgraph(c, s); //inizializza grafo (non ha archi)
+
     int a;  //città di partenza
     int b;  //città di arrivo
     int w;  //tempo di percorrenza
 
     int o; //città occupate
 
-    nodo citys_array[1000];  //----- da fare meglio
+    //node citys_array[1000];  //----- da fare meglio
 
 
     //aggiungi archi
@@ -93,11 +95,16 @@ void input(fstream in){
         in >> w;
 
         //code
+
+        map.linkWeightedSegment(a, b, w);
     }
 
+    in >> o; //leggi numero citta occupate
+
     //setta le città come occupate
-    for(int i; in >> i;){
-        //code
+    for (int i = 0; i < o; i++) {
+        in >> a; //leggi numero citta' occupata
+        map.occupied[a] = true; //settala ad occupata = true
     }
 }
 
@@ -117,4 +124,105 @@ void output(fstream out, int k, int r, int a[]){
     for(int i = 0; i < sizeof(a); i++){
         out << a[i] << " ";  
     }
+}
+
+
+
+node::node(int v, int w)
+{
+    this->id = v;
+    this->weight = w;
+    this->next = nullptr;
+}
+
+node::~node()
+{
+    this->next = nullptr;
+}
+
+bool node::empty()
+{
+    return (this == nullptr);
+}
+
+
+llist::llist()
+{
+    head = nullptr;
+}
+
+llist::~llist()
+{
+    node * tmp;
+
+    while (!this->empty()) {
+        tmp = this->head;
+        this->head = this->head->next;
+        delete tmp;
+    }
+}
+
+bool llist::empty()
+{
+    return (this->head)->empty();
+}
+
+void llist::appendValueWeight(int v, int w)
+{
+    node * n = new node(v, w);
+
+    n->next = this->head;
+    this->head = n;
+}
+
+static void detachNode(node * parent)
+{
+    node * tmp = parent->next;
+    parent->next = tmp->next;
+    delete tmp;
+}
+
+node * llist::getHead()
+{
+    return this->head;
+}
+
+
+listgraph::listgraph(int n, int m)
+{
+    this->n = n;
+    this->m = m;
+    this->adj_list = new llist*[n];
+    this->occupied = new bool[n];
+
+    for (int i = 0; i < n; i++) {
+        this->adj_list[i] = new llist;
+        this->occupied[i] = false;
+    }
+}
+
+listgraph::~listgraph()
+{
+    int n = this->n;
+
+    for (int i = 0; i < n; i++)
+        delete this->adj_list[i];
+    delete [] this->adj_list;
+    delete [] this->occupied;
+}
+
+void listgraph::linkWeightedSegment(int a, int b, int w)
+{
+    this->adj_list[a]->appendValueWeight(b, w);
+    this->adj_list[b]->appendValueWeight(a, w);
+}
+
+llist * listgraph::adjacentNodes(int n)
+{
+    return this->adj_list[n];
+}
+
+int listgraph::size()
+{
+    return this->n;
 }

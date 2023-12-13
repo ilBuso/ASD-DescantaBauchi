@@ -5,9 +5,11 @@ listgraph::listgraph(int n, int m)
     this->n = n;
     this->m = m;
     this->adj_list = new llist*[n];
+    this->captured = new bool[n];
 
     for (int i = 0; i < n; i++) {
         this->adj_list[i] = new llist;
+        this->captured[i] = false;
     }
 }
 
@@ -15,10 +17,10 @@ listgraph::~listgraph()
 {
     int n = this->n;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
         delete this->adj_list[i];
-    }
     delete [] this->adj_list;
+    delete [] this->captured;
 }
 
 
