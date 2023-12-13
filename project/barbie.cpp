@@ -81,8 +81,7 @@ void input(fstream in){
 
     int o; //città occupate
 
-    nodo citys_array[1000];  //----- da fare meglio
-
+    listgraph map = listgraph(c, s); //
 
     //aggiungi archi
     for(int i = 0; i < s; i++){
@@ -92,11 +91,11 @@ void input(fstream in){
         in >> b;
         in >> w;
 
-        //code
+        map.linkWeightedSegment(a, b, w);
     }
 
     //setta le città come occupate
-    for(int i; in >> i;){
+    for(int i; in >> i;){ 
         //code
     }
 }

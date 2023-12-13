@@ -5,6 +5,7 @@ listgraph::listgraph(int n, int m)
     this->n = n;
     this->m = m;
     this->adj_list = new llist*[n];
+    this->occupied = new bool[n];
 
     for (int i = 0; i < n; i++) {
         this->adj_list[i] = new llist;
