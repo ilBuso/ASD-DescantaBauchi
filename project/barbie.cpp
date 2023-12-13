@@ -8,8 +8,58 @@
 
 #include "barbie.h"
 
+//----------------------------------
+
 using namespace std;
 
+//----------------------------------
+
+/*
+    Constructors
+*/
+Node::Node(int id){
+    this->id = id;
+    this->occupied = false;
+}
+
+Arch::Arch(Node* b, int w){
+    this->b = b;
+    this->w = w;
+}
+
+Graph::Graph(Node* head, int c, int s){
+    this->head = head;
+    this->size = c;
+    this->n_strade = s;   
+}
+
+//----------------------------------
+
+/*
+    node functions
+*/
+void Node::add_arch(Node* a, Node* b, int w){
+    //cera arco da A a B di peso W
+    Arch arch_one = Arch(b, w);
+    //cera arco da B a A di peso W
+    Arch arch_two = Arch(a, w);
+
+    //aggiungi arco al vector di A
+    a->next.insert(a->next.begin(), arch_one);
+    //aggiungi arco al vector di B
+    b->next.insert(b->next.begin(), arch_two);
+}
+
+//----------------------------------
+
+/*
+    Graph functions
+*/
+Node* Graph::get_node(int id){
+    //code
+}
+
+//----------------------------------
 
 /*
     gestione degli stream
@@ -47,6 +97,8 @@ in_out apertura_stream(int argc, char* argv[]){
     return io;
 }
 
+//----------------------------------
+
 //funzione per chioudere tutti gli stream
 void chiusura_stream(fstream in, fstream out){
 
@@ -59,6 +111,7 @@ void chiusura_stream(fstream in, fstream out){
     out.close();
 }
 
+//----------------------------------
 
 /*
     gestione di input e output
@@ -75,23 +128,37 @@ void input(fstream in){
     int s;  //numero strade
     in >> s;
 
-    int a;  //città di partenza
-    int b;  //città di arrivo
-    int w;  //tempo di percorrenza
+    //crea barbieland
+    Node head = Node(0);
+    //crea grafo
+    Graph graph = Graph(&head, c, s);
 
+    int a;  //città di partenza
+    Node* a_node;
+    int b;  //città di arrivo
+    Node* b_node;
+    int w;  //tempo di percorrenza
+    Node* c_node;
     int o; //città occupate
 
-    listgraph map = listgraph(c, s); //
+
 
     //aggiungi archi
     for(int i = 0; i < s; i++){
+
 
         //prendi dall'input informazioni sull'arco
         in >> a;
         in >> b;
         in >> w;
 
-        map.linkWeightedSegment(a, b, w);
+        //partendo dall'id trovare i nodi se esistono o crearli
+
+        //prendere il puntatore
+
+        //aggiungi arco
+        add_arch(a_node, b_node, w);
+
     }
 
     //setta le città come occupate
