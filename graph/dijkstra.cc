@@ -151,7 +151,7 @@ void dijkstra(listgraph * g, int s, int * &distances, int * &parents, bool * cap
         }
     }
 
-    //computeK(no_weight_parents, parents, captured, n, no_weight_cost[n], distances[n]);
+    computeK(no_weight_parents, parents, captured, n, no_weight_cost[n], distances[n]);
 
     delete [] no_weight_cost;
     delete [] no_weight_parents;
