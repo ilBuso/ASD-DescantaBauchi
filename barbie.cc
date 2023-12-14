@@ -16,8 +16,7 @@ ofstream out("output.txt");
 int C, S, M;
 
 
-void dijkstra(vector<vector<pair<int,int>>> graph);
-void printPath(int * parent);
+void solve(vector<vector<pair<int,int>>> graph, bool * captured);
 
 //void leastEdges(vector<vector<pair<int,int>>> graph);
 
@@ -55,7 +54,7 @@ int main() {
 
 
     /* BFS ALGORITHM */
-    dijkstra(grafo);
+    solve(grafo, captured);
 
 
 
@@ -113,7 +112,7 @@ void leastEdges(vector<vector<pair<int,int>>> graph)
 */
 
 // start from 0
-void dijkstra(vector<vector<pair<int,int>>> graph)
+void solve(vector<vector<pair<int,int>>> graph, bool * captured)
 {
     int i, j, k, cost; //temporary
 
@@ -165,21 +164,37 @@ void dijkstra(vector<vector<pair<int,int>>> graph)
 
 
 
-    //calculate k
-    if (C == M) { //tutte citta' occupate: nulla da fare (k introvabile)
+
+    //CALCOLA NUMERO DI NODI DEL PERCORSO MENO COSTOSO
+    //E PREPARATI PER LA STAMPA DEL TRAGITTO
+    bool cheapest_captured = false;
+    k = 0; //variabile temp. per calcolo del numero di nodi
+    stack<int> s;
+    for (i = C - 1; i != 0; i = parent[i]) {
+        if (captured[i]) {
+            cheapest_captured = true;
+        }
+        k++;
+        s.push(i);
+    }
+    k++;
+
+
+
+
+    //CALCOLO DI K
+    if (C - 2 == M || cheapest_captured) { //tutte citta' occupate: nulla da fare (k introvabile)
         out << -2 << endl;
     } else if (M == 0) { //nessuna citta' occupata: k illimitato
+        out << -1 << endl;
+    } else {
         out << -1 << endl;
     }
 
 
-    int cheapest_edges = 0; // calculate number of edges of the cheapest path
-    stack<int> s;
-    for (i = C - 1; i != 0; i = parent[i]) {
-        cheapest_edges++;
-        s.push(i);
-    }
-    cheapest_edges++;
+
+
+
 
 /*
     if (cheapest_captured) {
@@ -193,37 +208,20 @@ void dijkstra(vector<vector<pair<int,int>>> graph)
 
 
 
-    //print path and length (number of nodes)
-    //printPath(parent);
+    //STAMPA DELLA LUNGHEZZA DEL PERCORSO MENO COSTOSO
+    //E TRAGITTO ANNESSO
+    out << k << endl;
+
     out << "0 ";
     while (!s.empty()) {
         out << s.top() << " ";
         s.pop();
     }
 
-
+    //deinizializzazioni (mannaggia a C++ con 'sti puntatori)
     delete [] distance;
     delete [] parent;
 
     delete [] least_edges_distance;
     delete [] least_edges_cost;
-}
-
-// start from C - 1
-void printPath(int * parent)
-{
-    int n = 0;
-    stack<int> s;
-    for (int i = C - 1; i != 0; i = parent[i]) {
-        n++;
-        s.push(i);
-    }
-
-    out << n + 1 << endl;
-    out << "0 ";
-    
-    while (!s.empty()) {
-        out << s.top() << " ";
-        s.pop();
-    }
 }
