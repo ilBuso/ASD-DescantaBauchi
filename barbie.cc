@@ -1,51 +1,43 @@
 #include <iostream>
-#include <vector>
 #include <fstream>
+#include <vector>
 #include <queue>
 #include <stack>
 using namespace std;
 
 #define INFTY -1
-#define FREE 0
-#define SEIZED -1
-#define SAFE 1
 
 ifstream in("input.txt");
 ofstream out("output.txt");
 
 int C, S, M;
 
-
-void solve(vector<vector<pair<int,int>>> graph, bool * captured);
-
-//void leastEdges(vector<vector<pair<int,int>>> graph);
-
 int main() {
+
 
     int a, b, w;
 
     in >> C >> S;
 
-    vector<vector<pair<int, int>>> grafo;
+    vector<vector<pair<int,int>>> map;
 
-    grafo.resize(C);
+    map.resize(C);
 
     for (int i = 0; i < S; i++) {
         in >> a >> b >> w;
-        grafo[a].push_back({b, w});
-        grafo[b].push_back({a, w});
+        map[a].push_back({b, w});
+        map[b].push_back({a, w});
     }
 
 
-
     bool * captured = new bool[C];
-    for (int i = 0; i < C; i++) {
-        captured[i] = false;
+    for (w = 0; w < C; w++) {
+        captured[w] = false;
     }
 
     in >> M;
 
-    for (int i = 0; i < M; i++) {
+    for (w = 0; w < M; w++) {
         in >> a;
         captured[a] = true;
     }
@@ -53,175 +45,114 @@ int main() {
 
 
 
-    /* BFS ALGORITHM */
-    solve(grafo, captured);
 
-
-
-    delete [] captured;
-
-    return 0;
-}
-
-// start from 0
-/*
-void leastEdges(vector<vector<pair<int,int>>> graph)
-{
-    bool arrived = false;
-
-    int i, j, k;
+    /* SOLUTION SOLUTION SOLUTION SOLUTION SOLUTION SOLUTION SOLUTION */
 
     queue<int> q;
-    int * distance = new int[C];
-    int * cost = new int[C];
+    int * cheapest_path_cost = new int[C];
+    int * cheapest_path_parent = new int[C];
 
-    for (int i = 0; i < C; i++) {
-        distance[i] = -1;
+    int * shortest_path_distance = new int[C];
+
+    for (a = 0; a < C; a++) {
+        shortest_path_distance[a] = INFTY;
+
+        cheapest_path_cost[a] = INFTY;
+        cheapest_path_parent[a] = INFTY;
     }
 
-    distance[0] = 0;
-    cost[0] = 0;
-    q.push(0);
+    cheapest_path_cost[0] = 0;
+    shortest_path_distance[0] = 0;
 
-    while (!q.empty() && !arrived) {
-        i = q.front(); q.pop();
-
-        for (j = 0; j < graph[i].size(); j++) {
-
-            k = graph[i][j].first;
-
-            if (distance[k] == -1) {
-
-                distance[k] = distance[i] + 1;
-                cost[k] = cost[i] + graph[i][j].second;
-
-                if (k == C - 1)
-                    arrived = true;
-                else
-                    q.push(k);
-            }
-        }
-    }
-
-    cout << "Least-edges path length: " << distance[C - 1] << endl;
-    cout << "Cost: " << cost[C - 1] << endl;
-
-    delete [] distance;
-    delete [] cost;
-}
-*/
-
-// start from 0
-void solve(vector<vector<pair<int,int>>> graph, bool * captured)
-{
-    int i, j, k, cost; //temporary
-
-    queue<int> q;
-    int * distance = new int[C]; //distance[C - 1] contains the cost of the cheapest path
-    int * parent = new int[C]; //record the path of the cheapest one (ritroso da C - 1, distance[C - 1], ...)
-
-    for (i = 0; i < C; i++) {
-        distance[i] = INFTY;
-        parent[i] = INFTY;
-    }
-
-
-    //stores the distance (number of edges)
-    //of the least-edges path, plus its
-    //total cost of those edges
-    int * least_edges_distance = new int[C];
-    int * least_edges_cost = new int[C];
-
-    least_edges_distance[0] = 0;
-    least_edges_cost[0] = 0;
-
-    distance[0] = 0;
     q.push(0);
 
     while (!q.empty()) {
-        
-        i = q.front(); q.pop();
 
-        for (j = 0; j < graph[i].size(); j++) {
+        a = q.front(); q.pop();
 
-            k = graph[i][j].first;
-            cost = graph[i][j].second;
+        for (b = 0; b < map[a].size(); b++) {
 
-            if (distance[k] == INFTY) {
-                least_edges_distance[k] = least_edges_distance[i] + 1; //calcolo per path piu' corto
-                least_edges_cost[k] = least_edges_cost[i] + cost; //segna il costo
+            if (cheapest_path_cost[map[a][b].first] == INFTY) { //nodo da esplorare
+                
+                //aggiorna costo e percorso alla dijkstra
+                cheapest_path_cost[map[a][b].first] = cheapest_path_cost[a] + map[a][b].second;
+                cheapest_path_parent[map[a][b].first] = a;
 
-                distance[k] = distance[i] + cost;
-                parent[k] = i;
-                q.push(k);
-            } else if (distance[k] > distance[i] + cost) { //ricalcolo per il path meno costoso
-                distance[k] = distance[i] + cost;
-                parent[k] = i;
-                q.push(k);
+                //aggiorna distanza minima in archi
+                shortest_path_distance[map[a][b].first] = shortest_path_distance[a] + 1;
+
+                q.push(map[a][b].first);
+
+                if (captured[a]) //propaga la cattura
+                    captured[map[a][b].first] = true;
+
+            } else if (shortest_path_distance[map[a][b].first] == shortest_path_distance[a] + 1) {
+                //nodo gia' scoperto, ma "contemporaneamente" ad uno precedente
+
+                //se lo raggiungi ad un costo minore ricalcola alla dijkstra...
+                if(cheapest_path_cost[map[a][b].first] > cheapest_path_cost[a] + map[a][b].second) {
+                    
+                    cheapest_path_cost[map[a][b].first] = cheapest_path_cost[a] + map[a][b].second;
+                    cheapest_path_parent[map[a][b].first] = a;
+                    q.push(map[a][b].first);
+
+                    //e pensa di catturare il nodo
+                    //o "liberarlo" (questo perche' se
+                    //aggiorni il nodo, significa che
+                    //da 'a' e' stato trovato un percorso
+                    //migliore)
+                    captured[map[a][b].first] = captured[a];
+
+                } else if ((cheapest_path_cost[map[a][b].first] == cheapest_path_cost[a] + map[a][b].second) && captured[a]) {
+                    //nel caso particolare in cui il costo sia uguale, la citta' viene occupata qualora
+                    //quella che propone un costo uguale sia a sua volta occupata
+                    captured[map[a][b].first] = true;
+                }
+            } else if (cheapest_path_cost[map[a][b].first] > cheapest_path_cost[a] + map[a][b].second) {
+                //nodo gia' scoperto, ma "dopo" una scoperta precedente, e con tragitto da aggiornare
+                cheapest_path_cost[map[a][b].first] = cheapest_path_cost[a] + map[a][b].second;
+                cheapest_path_parent[map[a][b].first] = a;
+                q.push(map[a][b].first);
             }
         }
     }
 
 
 
+    /* CALCOLO DI K CALCOLO DI K CALCOLO DI K CALCOLO DI K */
+    if (captured[C - 1]) {
+        out << -2 << endl; //per ora non sempre veritiero
+    } else {
+        //se Algoritmia non viene catturata, si puo' dire con sicurezza che
+        //il percorso della graphcruise sara' sicuro (ovvero e' sempre
+        //garantito un percorso minimo che passa per citta' libere,
+        //qualsiasi sia k)
+        out << -1 << endl;
+    }
 
-    //CALCOLA NUMERO DI NODI DEL PERCORSO MENO COSTOSO
-    //E PREPARATI PER LA STAMPA DEL TRAGITTO
-    bool cheapest_captured = false;
-    k = 0; //variabile temp. per calcolo del numero di nodi
+
+
+
+    /* CALCOLO DI UN PERCORSO DI COSTO MINIMO CALCOLO DI UN PERCORSO DI COSTO MINIMO */
+    a = 0;
     stack<int> s;
-    for (i = C - 1; i != 0; i = parent[i]) {
-        if (captured[i]) {
-            cheapest_captured = true;
-        }
-        k++;
-        s.push(i);
+    for (b = C - 1; b != 0; b = cheapest_path_parent[b]) {
+        a++;//incrementa numero nodi visitati nel percorso
+        s.push(b);
     }
-    k++;
+    a++;
 
-
-
-
-    //CALCOLO DI K
-    if (C - 2 == M || cheapest_captured) { //tutte citta' occupate: nulla da fare (k introvabile)
-        out << -2 << endl;
-    } else if (M == 0) { //nessuna citta' occupata: k illimitato
-        out << -1 << endl;
-    } else {
-        out << -1 << endl;
-    }
-
-
-
-
-
-
-/*
-    if (cheapest_captured) {
-        cout << -2 << endl;
-    } else if (shortest_captured) {
-        (least_edges_cost[C - 1] - distance[C - 1] - 1) / (cheapest_edges - least_edges_distance[C - 1])
-    } else {
-        cout << - 1 << endl;
-    }
-*/
-
-
-
-    //STAMPA DELLA LUNGHEZZA DEL PERCORSO MENO COSTOSO
-    //E TRAGITTO ANNESSO
-    out << k << endl;
-
-    out << "0 ";
+    out << a << endl << "0 "; //stampa nodi visitati nel percorso
     while (!s.empty()) {
         out << s.top() << " ";
         s.pop();
     }
 
-    //deinizializzazioni (mannaggia a C++ con 'sti puntatori)
-    delete [] distance;
-    delete [] parent;
+    delete [] cheapest_path_cost;
+    delete [] cheapest_path_parent;
+    delete [] shortest_path_distance;
 
-    delete [] least_edges_distance;
-    delete [] least_edges_cost;
+    delete [] captured;
+
+    return 0;
 }
